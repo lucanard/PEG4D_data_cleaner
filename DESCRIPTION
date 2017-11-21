@@ -1,0 +1,13 @@
+Package: GCxGC.Leco.analyzer
+Type: Package
+Title: Preparing the PEG4D data to data analysis
+Version: 0.1.0
+Date: 2017-11-21
+Author: Luca Narduzzi
+Maintainer: <nardluca@gmail.com>
+Description: The package transforms the data deconvoluted by the chromatof software to a readable data table useble for data analysis. In particular, it performs data cleaning, eliminating useless peaks, like the column bleedings, unknown peaks, peaks present in blanks and groups repeated peaks with common retention times. 
+Depends: stringr, chron, lubridate
+License: GPL
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
