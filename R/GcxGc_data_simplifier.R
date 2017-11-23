@@ -59,36 +59,36 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
     } else {Gar <- prova}
     return(Gar)
   }
-  Blank_subtraction <- function(Gar, Blank, LOD, reduce.matrix) {
+  Blank_subtraction <- function(Gar, Blank, LOD) {
     nami <- tolower(colnames(Gar))
-    if ((length(grep("blank", nami)) == 0)) {Gar <- Gar} else {
+    Sub_Gar <- function (Gar) {
+      subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
+      if (is.null(Gar$Mass) == FALSE) {
+        white <- which((rowMeans(Gar[,5:(5+leni-subi)])-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
+      } else {
+        white <- which((rowMeans(Gar[,4:(4+leni-subi)])-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
+      }
+      return(white)
+    }
+    if ((length(grep("blank", nami)) == 0)) {
+      Gar <- Gar
+      warning("Blanks are missing")
+      } else {
       Gar$Peak <- tolower(Gar$Peak)
       Gar[is.na(Gar)] <- 0
-      Sub_Gar <- function (Gar) {
-        subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
-        if (is.null(Gar$Mass) == FALSE) {
-          white <- which((rowMeans(Gar[,5:(5+leni-subi)])-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
-        } else {
-          white <- which((rowMeans(Gar[,4:(4+leni-subi)])-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
-        }
-        return(white)
-      }
       if (Blank == FALSE) {
         Gari <- Gar
         warning("Blank set to false")
       } else {
-        if (length(grep("Blank", names(Gar)))) {
+        if (length(grep("Blank", names(Gar))) == 1) {
           white <- Sub_Gar(Gar)
         } else {
-          if (Blank == FALSE){stop("Blank samples are missing")} else {
-            #if (is.null(Gar$BLANK) == TRUE) {
-            Gar$BLANK <- rowSums(Gar[,grepl("Blank", names(Gar))])
-            white <- Sub_Gar(Gar)
+          Gar$BLANK <- rowMeans(Gar[,grepl("Blank", names(Gar))])
+          white <- Sub_Gar(Gar)
           }
           if (length(white) == 0 & Blank != TRUE) {Gar <- Gar} else {Gar <- Gar[-white,]}
         }
       }
-    }
     return(Gar)
   }
   QC_sub <- function(Gari) {
@@ -187,7 +187,7 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
   if (is.null(Gar$Mass) == FALSE) {ms <- 1} else {ms <- 0}
   leni <- ncol(Gar) - length(which(lapply(Gar, is.numeric) != TRUE)) - ms
   if (Blank == TRUE) {
-    Gari <- Blank_subtraction(Gar, Blank, LOD, reduce.matrix)
+    Gari <- Blank_subtraction(Gar, Blank, LOD)
   } else {Gari <- Gar}
   if (any(grepl("QC", colnames(Gari)) == TRUE) == TRUE) {
     if (any(grep("^QC$", colnames(Gari)))){
