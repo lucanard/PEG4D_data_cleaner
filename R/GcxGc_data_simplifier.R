@@ -11,7 +11,7 @@
 #' @param unlikely should compounds containing unlikely atoms (chlorine, fluorine etc.) be excluded? default set to TRUE
 #' @param grouping should compounds having the same name and similar retention times be grouped? Default set to TRUE
 #' @param RTspan the maximum distance in seconds between to peaks with the same name to be grouped.
-#' @return a processed peaktable having all the real pekas present in your data
+#' @return a processed peaktable having all the real pekas present in your data in csv file in your working directory
 #' @export "GcxGc_data_cleaning"
 #' @author Luca Narduzzi "nardluca@gmail.com"
 #' @examples
@@ -202,5 +202,6 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
   } else {
     ad <- lapply(seq(1, length(Gari), 1), function(x) GCxGCanalyze(Gari[[x]], min.threshold, unknowns, col_bleed, reduce.matrix, unlikel, group, RTmax))
   }
+  write.csv(ad, file = "simple_GCxGC_table.csv")
   return(ad)
 }

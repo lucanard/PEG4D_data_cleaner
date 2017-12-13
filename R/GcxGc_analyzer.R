@@ -62,7 +62,7 @@ GCxGCanalyze <- function(Gari, min.threshold, unknowns, col_bleed, reduce.matrix
     ad <- ad[-matches,]
   } else {ad <- ad}
   if (reduce.matrix == TRUE) {
-    subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
+    subi <- length(grep("Blank", colnames(Gari))) + length(grep("BLANK", colnames(Gari)))
     oj <- length(which(lapply(ad, is.numeric) != TRUE))
     maxi <- apply(ad[,oj:(oj+leni-subi-1)], 1, max)
     ad <- ad[-which(maxi <= min.threshold),]
