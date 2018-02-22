@@ -31,14 +31,14 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
   unlikel <- unlikely
   group <- grouping
   RTmax <- RTspan
-  Gar_builder <- function(prova, samp.nam) {
+  Gar_builder <- function(x, samp.nam) {
     options(warn=-1)
-    if ((colnames(prova[1]) != "Peak") == TRUE) {
-      hiti <- prova
-      colnames(hiti) <- prova[1,]
+    if ((colnames(x[1]) != "Peak") == TRUE) {
+      hiti <- x
+      colnames(hiti) <- x[1,]
       hiti <- hiti[-1,]
       heiti <- hiti[,grep("Area", colnames(hiti))]
-      names <- colnames(prova)[grep(samp.nam, colnames(prova))]
+      names <- colnames(x)[grep(samp.nam, colnames(x))]
       colnames(heiti) <- c(names, rep("Blank", (length(heiti) - length(names))))
       heitix <- as.data.frame(lapply(heiti, function(x) as.numeric(as.character(x))))
       rt1s <- hiti[,grep("1st", colnames(hiti))]
@@ -56,17 +56,23 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
       rt2 <- RTis(rt2s)
       Peak <- as.character(unlist(hiti[,1]))
       Gar <- cbind(Peak, rt1, rt2, heitix)
-    } else {Gar <- prova}
+    } else {Gar <- x}
     return(Gar)
   }
-  Blank_subtraction <- function(Gar, Blank, LOD) {
+  missing_eliminator <- function(x, samp.nam) {
+    ab <- grep(samp.nam, colnames(Gar))
+    ac <- which(apply(Gar[,ab], 2, median) == 0)
+    x1 <- x[,-ab[ac]]
+    return(x1)
+  }
+  Blank_subtraction <- function(Gar, LOD) {
     nami <- tolower(colnames(Gar))
     Sub_Gar <- function (Gar) {
       subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
       if (is.null(Gar$Mass) == FALSE) {
-        white <- which((rowMeans(Gar[,5:(5+leni-subi)])-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
+        white <- which((apply(Gar[,5:(5+leni-subi)], 1, median)-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
       } else {
-        white <- which((rowMeans(Gar[,4:(4+leni-subi)])-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
+        white <- which((apply(Gar[,4:(4+leni-subi)], 1, median)-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
       }
       return(white)
     }
@@ -74,21 +80,18 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
       Gar <- Gar
       warning("Blanks are missing")
       } else {
-      Gar$Peak <- tolower(Gar$Peak)
-      Gar[is.na(Gar)] <- 0
-      if (Blank == FALSE) {
-        Gari <- Gar
-        warning("Blank set to false")
-      } else {
-        if (length(grep("Blank", names(Gar))) == 1) {
+      #Gar$Peak <- tolower(Gar$Peak)
+      #Gar[is.na(Gar)] <- 0
+      if (length(grep("Blank", names(Gar))) == 1) {
           white <- Sub_Gar(Gar)
-        } else {
-          Gar$BLANK <- rowMeans(Gar[,grepl("Blank", names(Gar))])
+      } else {
+        hh <- grepl("Blank", colnames(Gar))
+           Gar$BLANK <- apply(Gar[,hh], 1, median)       
+          #Gar$BLANK <- rowMeans(Gar[,grepl("Blank", names(Gar))])
           white <- Sub_Gar(Gar)
           }
-          if (length(white) == 0 & Blank != TRUE) {Gar <- Gar} else {Gar <- Gar[-white,]}
-        }
-      }
+      if (length(white) == 0) {Gar <- Gar} else {Gar <- Gar[-white,]}
+       }
     return(Gar)
   }
   QC_sub <- function(Gari) {
@@ -184,11 +187,21 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
     return(ad)
   }
   Gar <- Gar_builder(x, samp.nam)
+  Gar$Peak <- tolower(Gar$Peak)
+  Gar[is.na(Gar)] <- 0
+  Gar <- missing_eliminator(Gar, samp.nam)
+  #clean$Peak <- NULL
+  #no_Gar <- Gar[,-grep(samp.nam, colnames(Gar))]
+  #blank <- no_Gar[,grep("Blank", colnames(no_Gar))]
+  #no_blank <- no_Gar[,-grep("Blank", colnames(no_Gar))]
   if (is.null(Gar$Mass) == FALSE) {ms <- 1} else {ms <- 0}
   leni <- ncol(Gar) - length(which(lapply(Gar, is.numeric) != TRUE)) - ms
   if (Blank == TRUE) {
-    Gari <- Blank_subtraction(Gar, Blank, LOD)
-  } else {Gari <- Gar}
+    Gari <- Blank_subtraction(Gar, LOD)
+  } else {
+    Gari <- Gar
+    warning("Blank set to false")
+    }
   if (any(grepl("QC", colnames(Gari)) == TRUE) == TRUE) {
     if (any(grep("^QC$", colnames(Gari)))){
       Gari <- QC_sub(Gari)

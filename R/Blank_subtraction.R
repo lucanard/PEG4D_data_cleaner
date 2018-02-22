@@ -1,4 +1,4 @@
-Blank_subtraction <- function(Gar, Blank, LOD) {
+Blank_subtraction <- function(Gar, LOD) {
   nami <- tolower(colnames(Gar))
   Sub_Gar <- function (Gar) {
     subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
@@ -13,20 +13,17 @@ Blank_subtraction <- function(Gar, Blank, LOD) {
     Gar <- Gar
     warning("Blanks are missing")
   } else {
-    Gar$Peak <- tolower(Gar$Peak)
-    Gar[is.na(Gar)] <- 0
-    if (Blank == FALSE) {
-      Gari <- Gar
-      warning("Blank set to false")
+    #Gar$Peak <- tolower(Gar$Peak)
+    #Gar[is.na(Gar)] <- 0
+    if (length(grep("Blank", names(Gar))) == 1) {
+      white <- Sub_Gar(Gar)
     } else {
-      if (length(grep("Blank", names(Gar))) == 1) {
-        white <- Sub_Gar(Gar)
-      } else {
-        Gar$BLANK <- rowMeans(Gar[,grepl("Blank", names(Gar))])
-        white <- Sub_Gar(Gar)
-      }
-      if (length(white) == 0 & Blank != TRUE) {Gar <- Gar} else {Gar <- Gar[-white,]}
+      hh <- grepl("Blank", colnames(Gar))
+      Gar$BLANK <- apply(Gar[,hh], 1, median)       
+      #Gar$BLANK <- rowMeans(Gar[,grepl("Blank", names(Gar))])
+      white <- Sub_Gar(Gar)
     }
+    if (length(white) == 0) {Gar <- Gar} else {Gar <- Gar[-white,]}
   }
   return(Gar)
 }
