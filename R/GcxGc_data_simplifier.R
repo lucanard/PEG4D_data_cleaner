@@ -60,22 +60,23 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
     return(Gar)
   }
   missing_eliminator <- function(x, samp.nam) {
-    ab <- grep(samp.nam, colnames(Gar))
-    ac <- which(apply(Gar[,ab], 2, median) == 0)
-    x1 <- x[,-ab[ac]]
+    ab <- grep(samp.nam, colnames(x))
+    ac <- which(apply(x[,ab], 2, median) == 0)
+    
+    if ((length(ac) != 0) == TRUE) {x1 <- x[,-ab[ac]]} else {x1 <- x}
     return(x1)
+  }
+  Sub_Gar <- function (Gar) {
+    subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
+    if (is.null(Gar$Mass) == FALSE) {
+      white <- which((apply(Gar[,5:(5+leni-subi)], 1, median)-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
+    } else {
+      white <- which((apply(Gar[,4:(4+leni-subi)], 1, median)-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
+    }
+    return(white)
   }
   Blank_subtraction <- function(Gar, LOD) {
     nami <- tolower(colnames(Gar))
-    Sub_Gar <- function (Gar) {
-      subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
-      if (is.null(Gar$Mass) == FALSE) {
-        white <- which((apply(Gar[,5:(5+leni-subi)], 1, median)-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
-      } else {
-        white <- which((apply(Gar[,4:(4+leni-subi)], 1, median)-Gar$BLANK)/(Gar$BLANK*LOD) <= 1)
-      }
-      return(white)
-    }
     if ((length(grep("blank", nami)) == 0)) {
       Gar <- Gar
       warning("Blanks are missing")
@@ -179,7 +180,7 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
       ad <- ad[-matches,]
     } else {ad <- ad}
     if (reduce.matrix == TRUE) {
-      subi <- length(grep("Blank", colnames(Gar))) + length(grep("BLANK", colnames(Gar)))
+      subi <- length(grep("Blank", colnames(Gari))) + length(grep("BLANK", colnames(Gari)))
       oj <- length(which(lapply(ad, is.numeric) != TRUE))
       maxi <- apply(ad[,oj:(oj+leni-subi-1)], 1, max)
       ad <- ad[-which(maxi <= min.threshold),]
