@@ -4,35 +4,35 @@
 \alias{GcxGc_data_cleaning}
 \title{Cleaning of the peaktables from the PEG4D Leco instrument}
 \usage{
-GcxGc_data_cleaning(x, sample.name, Blank = TRUE, LOD = 3,
-  reduce.matrix = TRUE, min.threshold = 120000, unknowns = TRUE,
-  col_bleed = TRUE, unlikely = TRUE, group = TRUE, RTmax = 40)
+GcxGc_data_cleaning(x, sample_name, Blanks = TRUE, limit_of_detection = 3,
+  simplify_matrix = TRUE, minimum.threshold = 50000, unknown = TRUE,
+  column_bleed = TRUE, unlikely = TRUE, grouping = TRUE, RTspan = 40)
 }
 \arguments{
 \item{x}{the peaktable obtained from the chromatof deconvolution software}
 
-\item{sample.name}{the identificative letter/shortname of the samples. Mandatory to allow the algorithm to recognize the samples from the QCs.}
+\item{sample_name}{the identificative letter/shortname of the samples. Mandatory to allow the algorithm to recognize the samples from the QCs.}
 
-\item{Blank}{should be the peaks delete according to their presence in blanks? If TRUE, every compound present also in the blanks with an average amount lower in the samples lower than the average amount found in the blanks multiplied by the LOD factor. default = TRUE}
+\item{Blanks}{should be the peaks delete according to their presence in blanks? If TRUE, every compound present also in the blanks with an average amount lower in the samples lower than the average amount found in the blanks multiplied by the LOD factor. default = TRUE}
 
-\item{LOD}{the limit of detection for the compounds found also in the blanks. Default = 3}
+\item{limit_of_detection}{the limit of detection for the compounds found also in the blanks. Default = 3}
 
-\item{reduce.matrix}{if TRUE it will delete the compounds having a maximum value below the min.threshold value. default = TRUE}
+\item{simplify_matrix}{if TRUE it will delete the compounds having a maximum value below the min.threshold value. default = TRUE}
 
-\item{min.threshold}{the minimum threshold applied to reduce the matrix according to the maximum intensity found in any of the samples}
+\item{minimum.threshold}{the minimum threshold applied to reduce the matrix according to the maximum intensity found in any of the samples}
 
-\item{unknowns}{should unknown peaks be excluded? default set to TRUE}
+\item{unknown}{should unknown peaks be excluded? default set to TRUE}
 
-\item{col_bleed}{should common column bleedings be excluded? default set to TRUE}
+\item{column_bleed}{should common column bleedings be excluded? default set to TRUE}
 
 \item{unlikely}{should compounds containing unlikely atoms (chlorine, fluorine etc.) be excluded? default set to TRUE}
 
-\item{group}{should compounds having the same name and similar retention times be grouped? Default set to TRUE}
+\item{grouping}{should compounds having the same name and similar retention times be grouped? Default set to TRUE}
 
-\item{RTmax}{the maximum distance in seconds between to peaks with the same name to be grouped.}
+\item{RTspan}{the maximum distance in seconds between to peaks with the same name to be grouped.}
 }
 \value{
-a processed peaktable having all the real pekas present in your data
+a processed peaktable having all the real pekas present in your data in csv file in your working directory
 }
 \description{
 The function transforms the raw peaktable obtained from the chromatof deconvolution software to a clean pekatable with only the names of the Blanks, QCs, samples, Retention times and compound names.
