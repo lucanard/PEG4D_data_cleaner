@@ -17,7 +17,7 @@
 #' @examples
 #' Gar <- read.csv(system.file("extdata", "Gar.csv", package = "GCxGC.Leco.analyzer"), row.names = 1, stringsAsFactors = FALSE)
 #' GcxGCdata <- GcxGc_data_cleaning(Gar)
-GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detection = 3, simplify_matrix = TRUE, minimum.threshold = 120000,
+GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detection = 3, simplify_matrix = TRUE, minimum.threshold = 50000,
                                 unknown = TRUE, column_bleed = TRUE, unlikely = TRUE, grouping = TRUE, RTspan = 40) {
   if (missing(sample_name)) {
     samp.nam <- names(table(str_extract(colnames(x), "[a-z]+")))
@@ -62,7 +62,10 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
   missing_eliminator <- function(x, samp.nam) {
     ab <- grep(samp.nam, colnames(x))
     ac <- which(apply(x[,ab], 2, median) == 0)
+<<<<<<< HEAD
+=======
     
+>>>>>>> c2983cb09438af3c670ab7af27c231eb9dd85d97
     if ((length(ac) != 0) == TRUE) {x1 <- x[,-ab[ac]]} else {x1 <- x}
     return(x1)
   }
@@ -190,7 +193,7 @@ GcxGc_data_cleaning <- function(x, sample_name, Blanks = TRUE, limit_of_detectio
   Gar <- Gar_builder(x, samp.nam)
   Gar$Peak <- tolower(Gar$Peak)
   Gar[is.na(Gar)] <- 0
-  Gar <- missing_eliminator(Gar, samp.nam)
+  #Gar <- missing_eliminator(Gar, samp.nam)
   #clean$Peak <- NULL
   #no_Gar <- Gar[,-grep(samp.nam, colnames(Gar))]
   #blank <- no_Gar[,grep("Blank", colnames(no_Gar))]
